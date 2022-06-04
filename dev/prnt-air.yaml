@@ -1,0 +1,60 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prnt-air
+spec:
+  selector:
+    matchLabels:
+      app: prnt-air-app
+  template:
+    metadata:
+      labels:
+        app: prnt-air-app
+    spec:
+      containers:
+        - name: prnt-air-app
+          image: firewox/prnt-air:main
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+---
+# services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prnt-air
+spec:
+  selector:
+    app: prnt-air-app
+  ports:
+  - name: prnt-air-app
+    protocol: TCP
+    port: 80
+    targetPort: 80
+---
+# ingress-routes.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prnt-air
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - air.prnt.to
+      secretName: air-prnt-to-tls-secret
+  rules:
+  - host: air.prnt.to
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: prnt-air
+              port: 
+                number: 80
