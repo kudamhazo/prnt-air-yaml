@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: prnt-air-app
-          image: firewox/prnt-air:0.0.2
+          image: firewox/prnt-air:0.0.3
       imagePullSecrets:
         - name: regcred
 ---
